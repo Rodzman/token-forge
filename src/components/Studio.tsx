@@ -32,7 +32,7 @@ export function Studio() {
               role="tab"
               id={`tab-${t.id}`}
               aria-selected={tab === t.id}
-              aria-controls={`panel-${t.id}`}
+              aria-controls={tab === t.id ? `panel-${t.id}` : undefined}
               onClick={() => setTab(t.id)}
               className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                 tab === t.id ? "bg-brand text-white" : "text-muted hover:text-foreground"

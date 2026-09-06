@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EXPORT_FORMATS, exportTokens, type ExportFormat } from "@/lib/export";
 import { parseTokens, type TokenSet } from "@/lib/tokens";
 
@@ -14,6 +14,12 @@ export function ExportPanel({ tokens, onChange }: Props) {
   const [copied, setCopied] = useState(false);
   const [draft, setDraft] = useState("");
   const [importError, setImportError] = useState<string | null>(null);
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clear the "Copied" reset timer if the panel unmounts (e.g. the user switches tabs).
+  useEffect(() => () => {
+    if (copiedTimer.current) clearTimeout(copiedTimer.current);
+  }, []);
 
   const code = exportTokens(tokens, format);
   const file = EXPORT_FORMATS.find((f) => f.id === format)?.file ?? "tokens.txt";
@@ -22,7 +28,8 @@ export function ExportPanel({ tokens, onChange }: Props) {
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      if (copiedTimer.current) clearTimeout(copiedTimer.current);
+      copiedTimer.current = setTimeout(() => setCopied(false), 1500);
     } catch {
       setCopied(false);
     }
